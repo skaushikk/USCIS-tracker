@@ -5,6 +5,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import altair as alt
 import numpy as np
+import altair_viewer
 
 sns.set()
 

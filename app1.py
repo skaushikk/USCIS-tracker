@@ -5,6 +5,7 @@ import numpy as np
 import user_funcs
 import pandas as pd
 import altair as alt
+import altair_viewer
 
 def app():
     sns.set()

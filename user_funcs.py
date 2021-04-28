@@ -12,7 +12,6 @@ from datetime import datetime, timedelta
 
 base = 'https://egov.uscis.gov/casestatus/mycasestatus.do?appReceiptNum='
 
-alt.renderers.enable('altair_viewer')
 sns.set(style="whitegrid", color_codes=True)
 
 
