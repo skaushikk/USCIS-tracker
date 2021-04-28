@@ -51,12 +51,16 @@ def get_status(link):
     source = soup.find('div', {'class': 'rows text-center'})
     rno = link[-13:]
     try:
-        fno = re.search(r' I-(\w+)', source.p.text).group(1)
         header = source.h1.text
+        text = source.p.text
     except:
         print(rno)
         return None
-    return rno, fno, source.h1.text, source.p.text
+    try:
+        fno = re.search(r' I-(\w+)', source.p.text).group(1)
+    except:
+        fno = '765'
+    return rno, fno, header, text
 
 
 approved_list = ['Card Was Delivered To Me By The Post Office',

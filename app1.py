@@ -22,9 +22,6 @@ def app():
         link = user_funcs.base + rno
         try:
             _, formno, case_status, case_desc = user_funcs.get_status(link)
-            if _ and formno is None:
-                formno = '765'
-            # st.header('Case Details')
 
             st.write(f'Form I-{formno}')
             st.markdown("<h2 style='text-align: center; color: blue;'>CASE STATUS</h2>",  unsafe_allow_html=True)
