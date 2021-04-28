@@ -16,11 +16,11 @@ def app():
                  'extreme stress to the applicants with lives on hold waiting for the adjudication. ')
         st.write('Furthermore, this app provides a platform for more broader, indepth analysis and prediction')
 
-    with st.beta_expander("DISCLAIMER", expanded=True):
+    with st.beta_expander("DISCLAIMER", expanded=False):
         st.write('The application does not store any user information at all. All the information provided is from '
                  'publicly available data.')
 
-    with st.beta_expander("KNOWLEDGEBASE", expanded=True):
+    with st.beta_expander("KNOWLEDGEBASE", expanded=False):
         st.write("The details on different types of forms, terminology can be found in the USCIS information pages"
                  "https://www.uscis.gov/tools/a-z-index")
         # st.selectbox()
