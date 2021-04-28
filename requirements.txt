@@ -1,0 +1,16 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: win-64
+
+streamlit~=0.79.0
+pandas~=1.2.3
+altair~=4.1.0
+numpy~=1.19.2
+seaborn~=0.11.1
+requests~=2.25.1
+matplotlib~=3.3.4
+beautifulsoup4~=4.9.3
+dill~=0.3.3
+boto3~=1.17.46
+s3fs~=0.6.0
+tabulate~=0.8.9

@@ -1,0 +1,7 @@
+req.txt
+.aws
+.idea
+DATA
+app.py
+data_scraper.py
+__pycache__
