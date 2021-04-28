@@ -68,5 +68,23 @@ approved_list = ['Card Was Delivered To Me By The Post Office',
                  'Case Was Approved',
                  'Card Was Mailed To Me',
                  'Card Was Picked Up By The United States Postal Service',
-                 'New Card Is Being Produced'
+                 'New Card Is Being Produced',
+                 'Card Was '
                  ]
+
+
+def rename_status(status):
+    if status in approved_list:
+        return 'Approved'
+    elif re.search(re.compile(r'Rejected|Denied'), status):
+        return 'Rejected'
+    elif re.search(r'Evidence', status):
+        return 'RFE'
+    elif status == 'Case Was Received':
+        return 'Pending - Initial'
+    elif status == 'Case Was Updated To Show Fingerprints Were Taken':
+        return 'FingerPrints Completed'
+    elif re.search(r'Transfer', status):
+        return 'Pending - Transfer'
+    else:
+        return 'Pending'
