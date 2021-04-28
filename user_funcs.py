@@ -47,7 +47,7 @@ def get_status(link):
         page = requests.get(link)
     except requests.exceptions.ConnectionError:
         return None
-    soup = BeautifulSoup(page.text, 'lxml')
+    soup = BeautifulSoup(page.text)
     source = soup.find('div', {'class': 'rows text-center'})
     rno = link[-13:]
     try:
