@@ -1,23 +1,9 @@
 import streamlit as st
-import pandas as pd
 import seaborn as sns
-from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
-import altair as alt
 import numpy as np
 import user_funcs
 
-
-def load_data(file):
-    df = pd.read_csv(file)
-    df = df[~df.ReceiptNo.isnull()]
-    df['serial'] = df.ReceiptNo.str.slice(3, 13).astype(np.int64)
-    return df
-
-
-def get_filename(series, delta):
-    name = (datetime.today() - timedelta(days=delta)).strftime('%Y-%m-%d')
-    return f'DATA/{series}/{name}.csv'
 
 
 def app():
@@ -50,9 +36,9 @@ def app():
 
         # filename = f's3://uscis-receipt-status/DATA/{series}/{st_date}.csv'
         try:
-            _df = load_data(get_filename(series, 0))
+            _df = user_funcs.load_data(user_funcs.get_filename(series, 0))
         except FileNotFoundError:
-            _df = load_data(get_filename(series, 1))
+            _df = user_funcs.load_data(user_funcs.get_filename(series, 1))
 
         df_window = user_funcs.variable_window(_df, rng_start, rng_end).reset_index()
         df_window = df_window[['ReceiptNo', 'FormNo', 'Status', 'serial']].rename(columns={'serial':'Serial'})

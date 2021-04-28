@@ -1,34 +1,17 @@
 import streamlit as st
-import altair as altair
 import user_funcs
 import pandas as pd
 import seaborn as sns
-from tabulate import tabulate
-from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import altair as alt
 import numpy as np
-import boto3
-import s3fs
 
 sns.set()
 
 
-@st.cache
-def load_data(file):
-    df = pd.read_csv(file)
-    df = df[~df.ReceiptNo.isnull()]
-    df['serial'] = df.ReceiptNo.str.slice(3, 13).astype(np.int64)
-    return df
-
-
-def get_filename(series, delta):
-    name = (datetime.today() - timedelta(days=delta)).strftime('%Y-%m-%d')
-    return f'DATA/{series}/{name}.csv'
 ##########################################################################
 # ------------------ Total Data ------------------------------------------#
 ##########################################################################
-
 
 def app():
     # st.set_page_config(layout="centered")
@@ -45,9 +28,9 @@ def app():
     st_end_rnge = 5000
 
     try:
-        _df = load_data(get_filename(st_series, 0))
+        _df = user_funcs.load_data(user_funcs.get_filename(st_series, 0))
     except FileNotFoundError:
-        _df = load_data(get_filename(st_series, 1))
+        _df = user_funcs.load_data(user_funcs.get_filename(st_series, 1))
 
     rno_start = int(_df.iloc[0]['ReceiptNo'][3:])
     rno_end = int(_df.iloc[-1]['ReceiptNo'][3:])
@@ -61,7 +44,6 @@ def app():
     st.write('Range:', b - a)
 
     # filename = f's3://uscis-receipt-status/DATA/{st_series}/{st_date}.csv'
-
 
     ##########################################################################
     # ------------------ Windowed Data ------------------------------------------#
@@ -115,9 +97,9 @@ def app():
             ['FormNo', 'Status', 'ReceiptNo']].rename(columns={'ReceiptNo': 'Number of Cases'})
         st.dataframe(df_window_summary, width=50000)
 
-    ##########################################################################
-    # ------------------ Windowed Application Bucket Analysis----------------------------#
-    ##########################################################################
+        ##########################################################################
+        # ------------------ Windowed Application Bucket Analysis----------------------------#
+        ##########################################################################
 
         st_binsize = st.number_input('Enter the bucket size', value=500, step=25, min_value=5)
         st_bin_no = (b - a) // st_binsize
@@ -128,8 +110,9 @@ def app():
         df_f = df_window.loc[df_window['FormNo'] == st_formno]
 
         df_f = df_f.astype({'cuts': 'str'})
-        df_f['cuts'] = df_f.apply(lambda row: f"({str(row.cuts.split(',')[0][1:11])} - {str(row.cuts.split(',')[1][:11])})",
-                                  axis=1)
+        df_f['cuts'] = df_f.apply(
+            lambda row: f"({str(row.cuts.split(',')[0][1:11])} - {str(row.cuts.split(',')[1][:11])})",
+            axis=1)
         # st.dataframe(df_f)
 
         df_f['cstatus'] = np.where(df_f.Status.isin(user_funcs.approved_list), 'Approved', df_f.Status)
