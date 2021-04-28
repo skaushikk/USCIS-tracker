@@ -102,7 +102,7 @@ def app():
         # ------------------ Windowed Application Bucket Analysis----------------------------#
         ##########################################################################
 
-        st_binsize = st.number_input('Enter the bucket size', value=500, step=25, min_value=5)
+        st_binsize = st.number_input('Enter the bucket size', value=2000, step=25, min_value=5)
         st_bin_no = (b - a) // st_binsize
         st.write(st_formno, a, b, st_binsize, st_bin_no)
 

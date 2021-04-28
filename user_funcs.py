@@ -46,18 +46,17 @@ def get_status(link):
     try:
         page = requests.get(link)
     except requests.exceptions.ConnectionError:
-        return
-    soup = BeautifulSoup(page.text)
+        return None
+    soup = BeautifulSoup(page.text, 'lxml')
     source = soup.find('div', {'class': 'rows text-center'})
     rno = link[-13:]
     try:
-        fno = re.search(r' I-(\w+)', source.p.text)
+        fno = re.search(r' I-(\w+)', source.p.text).group(1)
+        header = source.h1.text
     except:
         print(rno)
-        fno = None
-    fno_ = None if fno is None else fno.group(1)
-
-    return rno, fno_, source.h1.text, source.p.text
+        return None
+    return rno, fno, source.h1.text, source.p.text
 
 
 approved_list = ['Card Was Delivered To Me By The Post Office',
