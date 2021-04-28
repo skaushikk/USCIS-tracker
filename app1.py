@@ -20,18 +20,20 @@ def app():
     # extract USCIS status
     with st.beta_expander('Case Details', expanded=False):
         link = user_funcs.base + rno
-        try:
-            _, formno, case_status, case_desc = user_funcs.get_status(link)
-
+        st.write(link)
+        er = False
+        _, formno, case_status, case_desc = user_funcs.get_status(link)
+        if case_status == '' or case_desc == '':
+            er = True
+            st.write('---------------   CASE DOES NOT EXIST   -------------------')
+        else:
             st.write(f'Form I-{formno}')
             st.markdown("<h2 style='text-align: center; color: blue;'>CASE STATUS</h2>",  unsafe_allow_html=True)
             st.markdown(f"<h3 style='text-align: center; color: black;'>{case_status}</h2>",  unsafe_allow_html=True)
             st.write('------------------------------------')
             st.write(case_desc)
             er = False
-        except:
-            st.write('---------------   CASE DOES NOT EXIST   -------------------')
-            er = True
+
     ############################################################################
 
     # range analysis
