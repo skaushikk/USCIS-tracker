@@ -2,7 +2,7 @@ import streamlit as st
 
 
 def app():
-    st.title('USCIS Case Status Tracker App')
+    st.title('USCIS Case Status Analyzer')
     with st.beta_expander("ABOUT", expanded=True):
         # st.subheader('ABOUT')
         st.write('USCIS Case Status Tracker app is built to help, people who have a pending '

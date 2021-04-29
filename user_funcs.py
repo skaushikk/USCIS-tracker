@@ -11,7 +11,6 @@ import re
 from datetime import datetime, timedelta
 import pytz
 
-
 base = 'https://egov.uscis.gov/casestatus/mycasestatus.do?appReceiptNum='
 
 
@@ -76,9 +75,11 @@ approved_list = ['Card Was Delivered To Me By The Post Office',
                  'Card Was '
                  ]
 
+
 ## rename statuses to approved, rejected, pending
 
 def rename_status(status):
+    status = str(status)
     if status in approved_list:
         return 'Approved'
     elif re.search(re.compile(r'Rejected|Denied'), status):
@@ -86,10 +87,10 @@ def rename_status(status):
     elif re.search(r'Evidence', status):
         return 'RFE'
     elif status == 'Case Was Received':
-        return 'Pending - Initial'
+        return 'Received'
     elif status == 'Case Was Updated To Show Fingerprints Were Taken':
         return 'FingerPrints Completed'
     elif re.search(r'Transfer', status):
-        return 'Pending - Transfer'
+        return 'Transferred'
     else:
         return 'Pending'

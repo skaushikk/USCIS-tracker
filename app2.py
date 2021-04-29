@@ -6,6 +6,10 @@ import matplotlib.pyplot as plt
 import altair as alt
 import numpy as np
 import altair_viewer
+from bokeh.io import output_file, show
+from bokeh.models import ColumnDataSource, FactorRange
+from bokeh.plotting import figure
+import pandas_bokeh
 
 sns.set()
 
@@ -18,9 +22,9 @@ def app():
     # st.set_page_config(layout="centered")
     # add_selectbox = st.sidebar.selectbox('How would you like to be contacted?', ('Email', 'Home phone', 'Mobile phone'))
 
-    st.title('USCIS Case Status Tracker App')
+    st.title('USCIS Case Analyzer')
     st.header('Input Data')
-    st_series = st.selectbox('Select the Receipt # Series:', ('SRC', 'MSC'))
+    st_series = st.selectbox('Select the Receipt # Series:', ('SRC', 'MSC', 'LIN'))
     st.write('You Selected -- ', st_series)
 
     # st_rno = st.text_input('Input your reference Receipt Number', 'SRC2190050100')
@@ -57,7 +61,7 @@ def app():
     df_window = user_funcs.variable_window(_df, a, b).reset_index()
     df_window = df_window[['ReceiptNo', 'FormNo', 'Status', 'serial']]
 
-    st.header('Analysis for Selected Window')
+    st.header('Analysis')
     st.write('Number of Data Points:', len(df_window))
     st.subheader('Data for the selected window')
     st.dataframe(df_window, width=1024)
@@ -73,10 +77,10 @@ def app():
         st.pyplot(fig)
     with col2:
         st.dataframe(df_window_counts, width=1024)
-
+    st.markdown(f"<h3 style='text-align: center; color: green;'>Form I-{df_window_counts.iloc[0][0]} applications have the highest count of {df_window_counts.iloc[0][1]}</h2>", unsafe_allow_html=True)
     ####
 
-    st.subheader('Breakdown by the Case type')
+    st.subheader('Breakdown by the Case Type and Status')
     df_window_top = df_window.groupby(['FormNo', 'Status']).count()['ReceiptNo'].groupby('FormNo',
                                                                                          group_keys=False).nlargest(
         4).reset_index()
@@ -86,6 +90,7 @@ def app():
     st.dataframe(df_window_top)
 
     # f2, ax3 = plt.subplots()
+    st.subheader('Applications Distribution by Case # and Status')
     ax3 = sns.catplot(data=df_window_top, kind='bar', x='FormNo', y='Count', hue='Status', height=4, aspect=2)
     ax3.set_xticklabels(rotation=90, ha="right")
 
@@ -119,11 +124,8 @@ def app():
         df_f['cuts'] = df_f.apply(
             lambda row: f"({str(row.cuts.split(',')[0][1:11])} - {str(row.cuts.split(',')[1][:11])})",
             axis=1)
-        # st.dataframe(df_f)
 
-        df_f['cstatus'] = np.where(df_f.Status.isin(user_funcs.approved_list), 'Approved', df_f.Status)
-        df_f['cstatus'] = np.where(df_f.cstatus.str.contains('Reject|Denied'), 'Rejected', df_f.cstatus)
-        # st.dataframe(df_f)
+        df_f['cstatus'] = df_f['Status'].apply(user_funcs.rename_status)
 
         df5 = df_f.groupby(['cuts', 'cstatus']).count()['serial'].groupby('cuts', group_keys=False).nlargest(
             4).reset_index()
@@ -134,6 +136,14 @@ def app():
         df5 = pd.merge(df5, df6, on='cuts')
         df5['ratio'] = df5['count'] / df5['TotalCount']
 
+        # df_final = df5.groupby('cuts')
+        # for x in df5.value_counts().index.to_list():
+        # df5_approved = df5[df5.status =='Approved'][['cuts', 'count']].rename(columns={'cuts':'buckets', 'count':'Approved'})
+        # df5_received = df5[df5.status.str.contains('Received')][['cuts', 'count']].rename(columns={'cuts':'buckets', 'count':'Received'})
+        # df5_fp = df5[df5.status.str.contains('FingerPrints')][['cuts', 'count']].rename(columns={'cuts':'buckets', 'count':'FingerPrinted'})
+        # df5_fp = df5[df5.status.str.contains('FingerPrints')][['cuts', 'count']].rename(columns={'cuts':'buckets', 'count':'FingerPrinted'})
+        #
+        # st.dataframe(df5_approved)
         # st.dataframe(df5)
 
         ##########################################################################
@@ -157,3 +167,14 @@ def app():
             color="status",
         ).interactive()
         st.write(al2)
+
+
+        # bokeh_fig = df5.plot_bokeh(
+        #     kind='bar',
+        #     x='cuts',
+        #     y='status',
+        #     xlabel='buckets',
+        #     ylabel='count',
+        #     title='Annual Sales by Category'
+        # )
+        # st.write(bokeh_fig)

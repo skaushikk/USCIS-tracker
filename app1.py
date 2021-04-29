@@ -10,7 +10,7 @@ import altair_viewer
 
 def app():
     sns.set()
-    st.title('USCIS Case Status Tracker App')
+    st.title('USCIS Case Snapshot')
     rno = st.text_input('Input your reference Receipt Number', 'SRC2190061566')
     series = rno[:3]
     serial = int(rno[3:])
@@ -20,7 +20,6 @@ def app():
     # extract USCIS status
     with st.beta_expander('Case Details', expanded=False):
         link = user_funcs.base + rno
-        st.write(link)
         er = False
         _, formno, case_status, case_desc = user_funcs.get_status(link)
         if case_status == '' or case_desc == '':
@@ -55,7 +54,7 @@ def app():
 
 
         rnge = st.number_input('Input Number of Cases to Analyze', value=10000)
-        rng_start, rng_end = serial - rnge // 2, serial + rnge // 2
+        rng_start, rng_end = serial - 3 * rnge // 4, serial + rnge // 4
 
         df_window = user_funcs.variable_window(_df, rng_start, rng_end).reset_index()
         df_window = df_window[['ReceiptNo', 'FormNo', 'Status', 'serial']].rename(columns={'serial': 'Serial'})
@@ -94,10 +93,14 @@ def app():
             st.dataframe(df_window_series_group[['Status', 'Percent']], width=1024, height=2025)
 
         approved = df_window_series_group.loc[df_window_series_group.Status == 'Approved', 'Percent']
-        pending = df_window_series_group.loc[df_window_series_group.Status.str.contains('Pending'), 'Ratio']
+        pending = df_window_series_group.loc[df_window_series_group.Status.str.contains('Pending|Transferred|Received'), 'Ratio']
+        rejected = df_window_series_group.loc[df_window_series_group.Status == 'Rejected', 'Percent']
+
         st.header('Approval Ratio')
         summary1 = f"{approved.values[0]} of the similar cases are APPROVED."
         summary2 = f"{'{:.0%}'.format(pending.sum())} of cases are still PENDING."
+        summary3 = f"{rejected.values[0]} of the similar cases are REJECTED."
 
         st.markdown(f"<h2 style='text-align: center; color: green;'>{summary1}</h2>", unsafe_allow_html=True)
         st.markdown(f"<h2 style='text-align: center; color: orange;'>{summary2}</h2>", unsafe_allow_html=True)
+        st.markdown(f"<h2 style='text-align: center; color: red;'>{summary3}</h2>", unsafe_allow_html=True)
