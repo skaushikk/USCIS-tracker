@@ -12,10 +12,8 @@ from datetime import datetime, timedelta
 
 base = 'https://egov.uscis.gov/casestatus/mycasestatus.do?appReceiptNum='
 
-sns.set(style="whitegrid", color_codes=True)
 
-
-# @st.cache
+@st.cache
 def load_data(file):
     df = pd.read_csv(file)
     df = df[~df.ReceiptNo.isnull()]
@@ -24,7 +22,8 @@ def load_data(file):
 
 
 def get_filename(series, delta):
-    name = (datetime.today() - timedelta(days=delta)).strftime('%Y-%m-%d')
+    yesterday = datetime.today() - timedelta(days=delta)
+    name = datetime.strftime(yesterday,'%Y-%m-%d')
     return f's3://uscis-receipt-status/DATA/{series}/{name}.csv'
 
 
