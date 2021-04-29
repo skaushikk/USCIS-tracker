@@ -9,6 +9,8 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from datetime import datetime, timedelta
+import pytz
+
 
 base = 'https://egov.uscis.gov/casestatus/mycasestatus.do?appReceiptNum='
 
@@ -22,7 +24,8 @@ def load_data(file):
 
 
 def get_filename(series, delta):
-    yesterday = datetime.today() - timedelta(days=delta)
+    tz = pytz.timezone('America/Chicago')
+    yesterday = datetime.now(tz) - timedelta(days=delta)
     name = datetime.strftime(yesterday, '%Y-%m-%d')
     return f's3://uscis-receipt-status/DATA/{series}/{name}.csv'
 

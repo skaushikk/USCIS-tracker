@@ -37,10 +37,17 @@ def app():
     ############################################################################
 
     # range analysis
-    td = st.number_input('input the timedelta', value=1)
-    st.write(user_funcs.get_filename(series, td))
-    _df = user_funcs.load_data(user_funcs.get_filename(series, td))
-    st.dataframe(_df)
+    loop = True
+    td = 0
+    while loop:
+        try:
+            _df = user_funcs.load_data(user_funcs.get_filename(series, td))
+            break
+        except FileNotFoundError:
+            td += 1
+            pass
+
+
     with st.beta_expander('Range Analysis', expanded=False):
         if er:
             st.write('---------------   INPUT VALID RECEIPT NUMBER   ------------------- ')

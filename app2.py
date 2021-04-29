@@ -28,7 +28,15 @@ def app():
     st_start_rnge = 5000
     st_end_rnge = 5000
 
-    _df = user_funcs.load_data(user_funcs.get_filename(st_series, 1))
+    loop = True
+    td = 0
+    while loop:
+        try:
+            _df = user_funcs.load_data(user_funcs.get_filename(st_series, td))
+            break
+        except FileNotFoundError:
+            td += 1
+            pass
 
     rno_start = int(_df.iloc[0]['ReceiptNo'][3:])
     rno_end = int(_df.iloc[-1]['ReceiptNo'][3:])
