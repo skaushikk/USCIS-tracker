@@ -6,10 +6,6 @@ import matplotlib.pyplot as plt
 import altair as alt
 import numpy as np
 import altair_viewer
-from bokeh.io import output_file, show
-from bokeh.models import ColumnDataSource, FactorRange
-from bokeh.plotting import figure
-import pandas_bokeh
 
 sns.set()
 
