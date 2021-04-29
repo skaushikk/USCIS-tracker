@@ -23,7 +23,7 @@ def load_data(file):
 
 def get_filename(series, delta):
     yesterday = datetime.today() - timedelta(days=delta)
-    name = datetime.strftime(yesterday,'%Y-%m-%d')
+    name = datetime.strftime(yesterday, '%Y-%m-%d')
     return f's3://uscis-receipt-status/DATA/{series}/{name}.csv'
 
 
@@ -73,6 +73,7 @@ approved_list = ['Card Was Delivered To Me By The Post Office',
                  'Card Was '
                  ]
 
+## rename statuses to approved, rejected, pending
 
 def rename_status(status):
     if status in approved_list:
