@@ -37,10 +37,8 @@ def app():
     ############################################################################
 
     # range analysis
-    try:
-        _df = user_funcs.load_data(user_funcs.get_filename(series, 0))
-    except FileNotFoundError:
-        _df = user_funcs.load_data(user_funcs.get_filename(series, 1))
+
+    _df = user_funcs.load_data(user_funcs.get_filename(series, 1))
 
     with st.beta_expander('Range Analysis', expanded=False):
         if er:
