@@ -59,46 +59,45 @@ def app():
 
     st.header('Analysis')
     st.write('Number of Data Points:', len(df_window))
-    st.subheader('Data for the selected window')
-    st.dataframe(df_window, width=1024)
 
-    # ax1 = sns.barplot(_df.FormNo.value_counts().index.to_list(), _df.FormNo.value_counts().to_list())
-    st.subheader('Number of cases by the Form # (Application type)')
-    col1, col2 = st.beta_columns((2, 1))
-    with col1:
-        fig, ax1 = plt.subplots()
-        df_window_counts = df_window.FormNo.value_counts().to_frame().reset_index()
-        df_window_counts.columns = ['FormNo', 'Count']
-        sns.barplot(data=df_window_counts, x='FormNo', y='Count')
-        st.pyplot(fig)
-    with col2:
-        st.dataframe(df_window_counts, width=1024)
-    st.markdown(
-        f"<h3 style='text-align: center; color: green;'>Form I-{df_window_counts.iloc[0][0]} applications have the highest count of {df_window_counts.iloc[0][1]}</h2>",
-        unsafe_allow_html=True)
+    with st.beta_expander('Data for the selected window', expanded=False):
+        st.dataframe(df_window, width=1024)
+
+        st.subheader('Number of cases by the Form # (Application type)')
+        col1, col2 = st.beta_columns((2, 1))
+        with col1:
+            fig, ax1 = plt.subplots()
+            df_window_counts = df_window.FormNo.value_counts().to_frame().reset_index()
+            df_window_counts.columns = ['FormNo', 'Count']
+            sns.barplot(data=df_window_counts, x='FormNo', y='Count')
+            st.pyplot(fig)
+        with col2:
+            st.dataframe(df_window_counts, width=1024)
+        st.markdown(
+            f"<h3 style='text-align: center; color: green;'>Form I-{df_window_counts.iloc[0][0]} applications have the highest count of {df_window_counts.iloc[0][1]}</h2>",
+            unsafe_allow_html=True)
     ####
+    with st.beta_expander('Breakdown by the Case Type and Status', expanded=False):
+        df_window_top = df_window.groupby(['FormNo', 'Status']).count()['ReceiptNo'].groupby('FormNo',
+                                                                                             group_keys=False).nlargest(
+            4).reset_index()
+        df_window_top = df_window_top[df_window_top.FormNo.isin(['765', '131', '485', '140'])]
+        df_window_top.columns = ['FormNo', 'Status', 'Count']
 
-    st.subheader('Breakdown by the Case Type and Status')
-    df_window_top = df_window.groupby(['FormNo', 'Status']).count()['ReceiptNo'].groupby('FormNo',
-                                                                                         group_keys=False).nlargest(
-        4).reset_index()
-    df_window_top = df_window_top[df_window_top.FormNo.isin(['765', '131', '485', '140'])]
-    df_window_top.columns = ['FormNo', 'Status', 'Count']
+        st.dataframe(df_window_top)
 
-    st.dataframe(df_window_top)
+        ####### SUMMARY PLOT #################
 
-    ####### SUMMARY PLOT #################
-
-    st.subheader('Applications Distribution by Case # and Status')
-    alt_chart1 = alt.Chart(df_window_top).mark_bar(opacity=0.7).encode(
-        x=alt.X("Status:O", axis=None, title=None),
-        y=alt.Y('Count:Q', stack=None),
-        color=alt.Color("Status", title=None),
-        column=alt.Column('FormNo', title=None)
-    ).properties(
-        width=75,
-        height=250).interactive()
-    st.write(alt_chart1)
+        st.subheader('Applications Distribution by Case # and Status')
+        alt_chart1 = alt.Chart(df_window_top).mark_bar(opacity=0.7).encode(
+            x=alt.X("Status:O", axis=None, title=None),
+            y=alt.Y('Count:Q', stack=None),
+            color=alt.Color("Status", title=None),
+            column=alt.Column('FormNo', title=None)
+        ).properties(
+            width=75,
+            height=250).interactive()
+        st.write(alt_chart1)
 
     ##########################################################################
     # ------------------ Windowed Application Analysis----------------------------#
@@ -110,14 +109,23 @@ def app():
         _df_window = df_window.loc[df_window.FormNo.isin([st_formno]), :]
         df_window_summary = _df_window.groupby(['FormNo', 'Status']).count().reset_index()[
             ['FormNo', 'Status', 'ReceiptNo']].rename(columns={'ReceiptNo': 'Number of Cases'})
-        st.dataframe(df_window_summary, width=50000)
+        # st.dataframe(df_window_summary, width=50000)
 
         ##########################################################################
         # ------------------ Windowed Application Bucket Analysis----------------------------#
         ##########################################################################
+        refine = st.select_slider('Select the refinement', ['Fine', 'Medium', 'Course'], value='Medium', key='Medium')
+        if refine == 'Fine':
+            alpha = 20
+        elif refine == 'Medium':
+            alpha = 10
+        else:
+            alpha = 5
 
-        st_binsize = st.number_input('Enter the bucket size', value=2000, step=25, min_value=5)
-        st_bin_no = (b - a) // st_binsize
+        st_binsize = (b - a) // alpha
+
+        # st_binsize = st.number_input('Enter the bucket size', value=2000, step=25, min_value=5)
+        st_bin_no = alpha
         st.write(st_formno, a, b, st_binsize, st_bin_no)
 
         cuts = pd.cut(df_window['serial'], bins=st_bin_no).to_list()
@@ -153,9 +161,9 @@ def app():
             x=alt.X("caseno:O", title='Case Numbers'),
             y=alt.Y("ratio:Q", stack=None),
             color="status:N",
-            tooltip=[alt.Tooltip('ratio:N'),alt.Tooltip('status:N') ]
+            tooltip=[alt.Tooltip('ratio:N'), alt.Tooltip('status:N')]
         ).properties(
-            width=1000,
+            width=900,
             height=400).properties(title=f'{st_series} Series, I-{st_formno} Status Distribution - Ratio').interactive()
         st.write(alt_chart2)
 
@@ -164,7 +172,7 @@ def app():
             y=alt.Y('count:Q', stack=None),
             color="status",
         ).properties(
-            width=1000,
+            width=900,
             height=400).interactive()
         st.write(al2)
 #################################################
