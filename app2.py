@@ -28,10 +28,8 @@ def app():
     st_start_rnge = 5000
     st_end_rnge = 5000
 
-    try:
-        _df = user_funcs.load_data(user_funcs.get_filename(st_series, 0))
-    except FileNotFoundError:
-        _df = user_funcs.load_data(user_funcs.get_filename(st_series, 1))
+    # _df = user_funcs.load_data(user_funcs.get_filename(st_series, 1))
+    _df = user_funcs.load_data('s3://uscis-receipt-status/DATA/SRC/2021-04-27.csv')
 
     rno_start = int(_df.iloc[0]['ReceiptNo'][3:])
     rno_end = int(_df.iloc[-1]['ReceiptNo'][3:])

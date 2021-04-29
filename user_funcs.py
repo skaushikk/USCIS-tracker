@@ -15,7 +15,7 @@ base = 'https://egov.uscis.gov/casestatus/mycasestatus.do?appReceiptNum='
 sns.set(style="whitegrid", color_codes=True)
 
 
-@st.cache
+# @st.cache
 def load_data(file):
     df = pd.read_csv(file)
     df = df[~df.ReceiptNo.isnull()]
