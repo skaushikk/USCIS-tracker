@@ -73,7 +73,9 @@ def app():
         st.pyplot(fig)
     with col2:
         st.dataframe(df_window_counts, width=1024)
-    st.markdown(f"<h3 style='text-align: center; color: green;'>Form I-{df_window_counts.iloc[0][0]} applications have the highest count of {df_window_counts.iloc[0][1]}</h2>", unsafe_allow_html=True)
+    st.markdown(
+        f"<h3 style='text-align: center; color: green;'>Form I-{df_window_counts.iloc[0][0]} applications have the highest count of {df_window_counts.iloc[0][1]}</h2>",
+        unsafe_allow_html=True)
     ####
 
     st.subheader('Breakdown by the Case Type and Status')
@@ -85,12 +87,18 @@ def app():
 
     st.dataframe(df_window_top)
 
-    # f2, ax3 = plt.subplots()
-    st.subheader('Applications Distribution by Case # and Status')
-    ax3 = sns.catplot(data=df_window_top, kind='bar', x='FormNo', y='Count', hue='Status', height=4, aspect=2)
-    ax3.set_xticklabels(rotation=90, ha="right")
+    ####### SUMMARY PLOT #################
 
-    st.pyplot(ax3)
+    st.subheader('Applications Distribution by Case # and Status')
+    alt_chart1 = alt.Chart(df_window_top).mark_bar(opacity=0.7).encode(
+        x=alt.X("Status:O", axis=None, title=None),
+        y=alt.Y('Count:Q', stack=None),
+        color=alt.Color("Status", title=None),
+        column=alt.Column('FormNo', title=None)
+    ).properties(
+        width=75,
+        height=250).interactive()
+    st.write(alt_chart1)
 
     ##########################################################################
     # ------------------ Windowed Application Analysis----------------------------#
@@ -114,7 +122,7 @@ def app():
 
         cuts = pd.cut(df_window['serial'], bins=st_bin_no).to_list()
         df_window['cuts'] = cuts
-        df_f = df_window.loc[df_window['FormNo'] == st_formno]
+        df_f = df_window.loc[df_window['FormNo'] == st_formno].reset_index(drop=True)
 
         df_f = df_f.astype({'cuts': 'str'})
         df_f['cuts'] = df_f.apply(
@@ -123,24 +131,17 @@ def app():
 
         df_f['cstatus'] = df_f['Status'].apply(user_funcs.rename_status)
 
+        df4 = df_f.groupby('cuts').count()['ReceiptNo'].reset_index()
+        df4.columns = ['cuts', 'TotalCount']
+
         df5 = df_f.groupby(['cuts', 'cstatus']).count()['serial'].groupby('cuts', group_keys=False).nlargest(
             4).reset_index()
         df5.columns = ['cuts', 'status', 'count']
 
-        df6 = df_f.groupby('cuts').count()['ReceiptNo'].reset_index()
-        df6.columns = ['cuts', 'TotalCount']
-        df5 = pd.merge(df5, df6, on='cuts')
+        df5 = pd.merge(df5, df4, on='cuts')
         df5['ratio'] = df5['count'] / df5['TotalCount']
-
-        # df_final = df5.groupby('cuts')
-        # for x in df5.value_counts().index.to_list():
-        # df5_approved = df5[df5.status =='Approved'][['cuts', 'count']].rename(columns={'cuts':'buckets', 'count':'Approved'})
-        # df5_received = df5[df5.status.str.contains('Received')][['cuts', 'count']].rename(columns={'cuts':'buckets', 'count':'Received'})
-        # df5_fp = df5[df5.status.str.contains('FingerPrints')][['cuts', 'count']].rename(columns={'cuts':'buckets', 'count':'FingerPrinted'})
-        # df5_fp = df5[df5.status.str.contains('FingerPrints')][['cuts', 'count']].rename(columns={'cuts':'buckets', 'count':'FingerPrinted'})
-        #
-        # st.dataframe(df5_approved)
-        # st.dataframe(df5)
+        df6 = df5.reset_index().sort_values(['status', 'index'])
+        df6['caseno'] = df6['cuts'].apply(lambda x: int(x[1:12]))
 
         ##########################################################################
         # ------------------ Windowed Bucket Analysis Plots----------------------------#
@@ -148,29 +149,22 @@ def app():
 
         st.subheader(f'I-{st_formno} Status by the buckets')
 
-        palette = sns.color_palette("tab10")
-
-        ax4 = sns.catplot(data=df5, kind='bar', x='cuts', y='ratio', hue='status', height=6, aspect=2, palette=palette)
-        ax4.set_xticklabels(rotation=90, ha="right")
-        ax4.fig.suptitle(f'{st_series} Series, I-{st_formno} Status Distribution - Ratio')
-        st.pyplot(ax4)
-
-        status_list = st.selectbox('Pick the status to plot', df5.status.value_counts().index.to_list())
+        alt_chart2 = alt.Chart(df6).mark_area(opacity=0.3).encode(
+            x=alt.X("caseno:O", title='Case Numbers'),
+            y=alt.Y("ratio:Q", stack=None),
+            color="status:N",
+            tooltip=[alt.Tooltip('ratio:N'),alt.Tooltip('status:N') ]
+        ).properties(
+            width=1000,
+            height=400).properties(title=f'{st_series} Series, I-{st_formno} Status Distribution - Ratio').interactive()
+        st.write(alt_chart2)
 
         al2 = alt.Chart(df5).mark_bar(opacity=0.7).encode(
-            x='cuts:O',
+            x=alt.X("cuts:O", title='Case Number Buckets'),
             y=alt.Y('count:Q', stack=None),
             color="status",
-        ).interactive()
+        ).properties(
+            width=1000,
+            height=400).interactive()
         st.write(al2)
-
-
-        # bokeh_fig = df5.plot_bokeh(
-        #     kind='bar',
-        #     x='cuts',
-        #     y='status',
-        #     xlabel='buckets',
-        #     ylabel='count',
-        #     title='Annual Sales by Category'
-        # )
-        # st.write(bokeh_fig)
+#################################################
