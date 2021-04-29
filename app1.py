@@ -37,8 +37,10 @@ def app():
     ############################################################################
 
     # range analysis
-    _df = user_funcs.load_data(user_funcs.get_filename(series, 1))
-
+    td = st.number_input('input the timedelta', value=1)
+    st.write(user_funcs.get_filename(series, td))
+    _df = user_funcs.load_data(user_funcs.get_filename(series, td))
+    st.dataframe(_df)
     with st.beta_expander('Range Analysis', expanded=False):
         if er:
             st.write('---------------   INPUT VALID RECEIPT NUMBER   ------------------- ')
