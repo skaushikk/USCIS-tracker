@@ -153,8 +153,8 @@ def app():
         # ------------------ Windowed Bucket Analysis Plots----------------------------#
         ##########################################################################
 
-        st.subheader(f'I-{st_formno} Status by the buckets')
-
+        st.header(f'I-{st_formno} Status by the buckets')
+        st.subheader(f'I-{st_formno} Status Ratios')
         alt_chart2 = alt.Chart(df6).mark_area(opacity=0.3).encode(
             x=alt.X("caseno:O", title='Case Numbers'),
             y=alt.Y("ratio:Q", stack=None),
@@ -165,6 +165,7 @@ def app():
             height=400).properties(title=f'{st_series} Series, I-{st_formno} Status Distribution - Ratio').interactive()
         st.write(alt_chart2)
 
+        st.subheader(f'I-{st_formno} Status Counts')
         al2 = alt.Chart(df5).mark_bar(opacity=0.7).encode(
             x=alt.X("cuts:O", title='Case Number Buckets'),
             y=alt.Y('count:Q', stack=None),
