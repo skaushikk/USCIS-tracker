@@ -21,7 +21,6 @@ def app():
     st.title('USCIS Case Analyzer')
     st.header('Input Data')
     st_series = st.selectbox('Select the Receipt # Series:', ('SRC', 'MSC', 'LIN'))
-    st.write('You Selected -- ', st_series)
 
     # st_rno = st.text_input('Input your reference Receipt Number', 'SRC2190050100')
 
@@ -42,9 +41,9 @@ def app():
     rno_end = int(_df.iloc[-1]['ReceiptNo'][3:])
 
     st_no = rno_start + (rno_end - rno_start) // 2
-    st.write(rno_start, rno_end)
+    # st.write(rno_start, rno_end)
 
-    a, b = st.slider('Receipt # Range', min_value=rno_start, max_value=rno_end,
+    a, b = st.slider('Select the Receipt Number Range', min_value=rno_start, max_value=rno_end,
                      value=(st_no - st_start_rnge, st_no + st_end_rnge), step=1)
 
     st.write('Range:', b - a)
@@ -60,8 +59,8 @@ def app():
     st.header('Analysis')
     st.write('Number of Data Points:', len(df_window))
 
-    with st.beta_expander('Data for the selected window', expanded=False):
-        st.dataframe(df_window, width=1024)
+    with st.beta_expander('Case Distribution', expanded=False):
+        # st.dataframe(df_window, width=1024)
 
         st.subheader('Number of cases by the Form # (Application type)')
         col1, col2 = st.beta_columns((2, 1))
@@ -77,7 +76,7 @@ def app():
             f"<h3 style='text-align: center; color: green;'>Form I-{df_window_counts.iloc[0][0]} applications have the highest count of {df_window_counts.iloc[0][1]}</h2>",
             unsafe_allow_html=True)
     ####
-    with st.beta_expander('Breakdown by the Case Type and Status', expanded=False):
+    # with st.beta_expander('Breakdown by the Case Type and Status', expanded=False):
         df_window_top = df_window.groupby(['FormNo', 'Status']).count()['ReceiptNo'].groupby('FormNo',
                                                                                              group_keys=False).nlargest(
             4).reset_index()
@@ -171,6 +170,7 @@ def app():
             x=alt.X("cuts:O", title='Case Number Buckets'),
             y=alt.Y('count:Q', stack=None),
             color="status",
+            tooltip=[alt.Tooltip('count:N'), alt.Tooltip('status:N')]
         ).properties(
             width=900,
             height=400).interactive()

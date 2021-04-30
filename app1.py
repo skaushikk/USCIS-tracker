@@ -14,7 +14,6 @@ def app():
     rno = st.text_input('Input your reference Receipt Number', 'SRC2190061566')
     series = rno[:3]
     serial = int(rno[3:])
-    st.write(series, serial)
     ##########################################################################
 
     # extract USCIS status
@@ -47,15 +46,28 @@ def app():
             pass
 
 
-    with st.beta_expander('Range Analysis', expanded=False):
+###########################
+        # st.header('Number of cases by the Form # (Application type)')
+        # col1, col2 = st.beta_columns((2, 1))
+        # with col1:
+        #     fig, ax1 = plt.subplots()
+        #     df_window_counts = df_window.FormNo.value_counts().to_frame().reset_index()
+        #     df_window_counts.columns = ['FormNo', 'Count']
+        #     sns.barplot(data=df_window_counts, x='FormNo', y='Count')
+        #     st.pyplot(fig)
+        # with col2:
+        #     st.dataframe(df_window_counts, width=1024)
+#############################
+    with st.beta_expander('Similar Applications', expanded=False):
         if er:
             st.write('---------------   INPUT VALID RECEIPT NUMBER   ------------------- ')
             return
+        st.header('Similar Application Range')
+        # rnge = st.number_input('Input Number of Cases to Analyze', value=10000)
 
-
-        rnge = st.number_input('Input Number of Cases to Analyze', value=10000)
+        rnge = st.slider('Receipt # Range', min_value=100, max_value=10000,
+                     value=5000, step=50)
         rng_start, rng_end = serial - 3 * rnge // 4, serial + rnge // 4
-
         df_window = user_funcs.variable_window(_df, rng_start, rng_end).reset_index()
         df_window = df_window[['ReceiptNo', 'FormNo', 'Status', 'serial']].rename(columns={'serial': 'Serial'})
 
@@ -67,30 +79,29 @@ def app():
 
         df_window_series_group['Ratio'] = df_window_series_group.Count / series_total
         df_window_series_group['Percent'] = df_window_series_group['Ratio'].apply(lambda x: "{:.0%}".format(x))
+        # st.dataframe(df_window_series_group)
 
+        st.header('Status distribution of similar applications')
+        st.subheader(f'Within the selected {rnge} applications')
+        # col3, col4 = st.beta_columns((1, 1))
+        # with col3:
+        #     fig, ax1 = plt.subplots()
+        #     sns.barplot(data=df_window_series_group, x='Status', y='Ratio')
+        #     ax1.set_xticklabels(ax1.get_xticklabels(), rotation=90, horizontalalignment='right')
+        #     st.pyplot(fig)
+        # with col4:
+        #     st.dataframe(df_window_series_group[['Status', 'Percent']], width=1024, height=2025)
 
+        al1 = alt.Chart(df_window_series_group).mark_bar().encode(
+            x='Status',
+            y='Ratio',
+            color='Status',
+            tooltip = alt.Tooltip(['Ratio:Q'])
+        ).properties(
+            width=700,
+            height=400).interactive()
+        st.write(al1)
 
-        st.header('Number of cases by the Form # (Application type)')
-        col1, col2 = st.beta_columns((2, 1))
-        with col1:
-            fig, ax1 = plt.subplots()
-            df_window_counts = df_window.FormNo.value_counts().to_frame().reset_index()
-            df_window_counts.columns = ['FormNo', 'Count']
-            sns.barplot(data=df_window_counts, x='FormNo', y='Count')
-            st.pyplot(fig)
-        with col2:
-            st.dataframe(df_window_counts, width=1024)
-
-        st.header('Distrubution of the cases by STATUS')
-
-        col3, col4 = st.beta_columns((1, 1))
-        with col3:
-            fig, ax1 = plt.subplots()
-            sns.barplot(data=df_window_series_group, x='Status', y='Ratio')
-            ax1.set_xticklabels(ax1.get_xticklabels(), rotation=90, horizontalalignment='right')
-            st.pyplot(fig)
-        with col4:
-            st.dataframe(df_window_series_group[['Status', 'Percent']], width=1024, height=2025)
 
         approved = df_window_series_group.loc[df_window_series_group.Status == 'Approved', 'Percent']
         pending = df_window_series_group.loc[df_window_series_group.Status.str.contains('Pending|Transferred|Received'), 'Ratio']
