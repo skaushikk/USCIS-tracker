@@ -125,7 +125,6 @@ def app():
 
         # st_binsize = st.number_input('Enter the bucket size', value=2000, step=25, min_value=5)
         st_bin_no = alpha
-        st.write(st_formno, a, b, st_binsize, st_bin_no)
 
         cuts = pd.cut(df_window['serial'], bins=st_bin_no).to_list()
         df_window['cuts'] = cuts
