@@ -47,7 +47,8 @@ def app():
                      value=(st_no - st_start_rnge, st_no + st_end_rnge), step=1)
 
     st.write('Range:', b - a)
-
+    st.write(f'Analyzing Cases Between:')
+    st.markdown(f"<h4 style='text-align: center;'> {st_series}-{a}&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp;{st_series}-{b}</h2>", unsafe_allow_html=True)
     # filename = f's3://uscis-receipt-status/DATA/{st_series}/{st_date}.csv'
 
     ##########################################################################

@@ -26,8 +26,8 @@ def app():
             st.write('---------------   CASE DOES NOT EXIST   -------------------')
         else:
             st.write(f'Form I-{formno}')
-            st.markdown("<h2 style='text-align: center; color: blue;'>CASE STATUS</h2>", unsafe_allow_html=True)
-            st.markdown(f"<h3 style='text-align: center; color: black;'>{case_status}</h2>", unsafe_allow_html=True)
+            st.markdown("<h2 style='text-align: center;'>CASE STATUS</h2>", unsafe_allow_html=True)
+            st.markdown(f"<h3 style='text-align: center;color: #0DDBEE;'>{case_status}</h2>", unsafe_allow_html=True)
             st.write('------------------------------------')
             st.write(case_desc)
             er = False

@@ -76,7 +76,7 @@ approved_list = ['Card Was Delivered To Me By The Post Office',
                  ]
 
 
-## rename statuses to approved, rejected, pending
+# rename statuses to approved, rejected, pending
 
 def rename_status(status):
     status = str(status)
