@@ -65,7 +65,7 @@ def app():
         st.header('Similar Application Range')
         # rnge = st.number_input('Input Number of Cases to Analyze', value=10000)
 
-        rnge = st.slider('Receipt # Range', min_value=100, max_value=10000,
+        rnge = st.slider('Pick the number of applications around your case to analyze', min_value=100, max_value=10000,
                      value=5000, step=50)
         rng_start, rng_end = serial - 3 * rnge // 4, serial + rnge // 4
         df_window = user_funcs.variable_window(_df, rng_start, rng_end).reset_index()

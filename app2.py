@@ -165,7 +165,11 @@ def app():
             tooltip=[alt.Tooltip('ratio:N'), alt.Tooltip('status:N')]
         ).properties(
             width=900,
-            height=400).properties(title=f'{st_series} Series, I-{st_formno} Status Distribution - Ratio').interactive()
+            height=400).properties(title=f'{st_series} Series, I-{st_formno} Status Distribution - Ratio').configure_axis(
+                                                                grid=False
+                                                            ).configure_view(
+                                                                strokeWidth=0
+                                                            ).interactive()
         st.write(alt_chart2)
 
         st.subheader(f'I-{st_formno} Status Counts')
