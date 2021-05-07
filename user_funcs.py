@@ -94,3 +94,7 @@ def rename_status(status):
         return 'Transferred'
     else:
         return 'Pending'
+
+
+status_list = ['Approved', 'Rejected', 'RFE', 'Received', 'FingerPrints Completed', 'Transferred']
+color_list = ['green', 'red', 'yellow', 'blue', 'orange', 'aqua']

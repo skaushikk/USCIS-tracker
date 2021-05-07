@@ -153,13 +153,15 @@ def app():
         ##########################################################################
         # ------------------ Windowed Bucket Analysis Plots----------------------------#
         ##########################################################################
+        status_list = ['Approved', 'Rejected', 'RFE', 'Received', 'FingerPrints Completed', 'Transferred']
+        color_list = ['green', 'red', 'yellow', 'blue', 'orange', 'aqua']
 
         st.header(f'I-{st_formno} Status by the buckets')
         st.subheader(f'I-{st_formno} Status Ratios')
-        alt_chart2 = alt.Chart(df6).mark_area(opacity=0.3).encode(
+        alt_chart2 = alt.Chart(df6).mark_area(opacity=0.6).encode(
             x=alt.X("caseno:O", title='Case Numbers'),
             y=alt.Y("ratio:Q", stack='normalize'),
-            color="status:N",
+            color=alt.Color("status:N", scale=alt.Scale(domain=status_list, range=color_list)),
             tooltip=[alt.Tooltip('ratio:N'), alt.Tooltip('status:N')]
         ).properties(
             width=900,
@@ -167,10 +169,10 @@ def app():
         st.write(alt_chart2)
 
         st.subheader(f'I-{st_formno} Status Counts')
-        al2 = alt.Chart(df5).mark_bar(opacity=1).encode(
+        al2 = alt.Chart(df5).mark_bar(opacity=0.6).encode(
             x=alt.X("cuts:O", title='Case Number Buckets'),
-            y=alt.Y('count:Q', stack=None),
-            color="status",
+            y=alt.Y('count:Q', stack='zero'),
+            color=alt.Color("status", scale=alt.Scale(domain=status_list, range=color_list)),
             tooltip=[alt.Tooltip('count:N'), alt.Tooltip('status:N')]
         ).properties(
             width=900,
