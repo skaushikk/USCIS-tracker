@@ -4,7 +4,7 @@ import streamlit as st
 def app():
     st.title('USCIS Case Status Analyzer')
     st.subheader('Check, Analyze and Predict USCIS Application Status')
-    st.markdown("<h3 style='text-align: right; color: gray;'>-- Kaushik Sirvole</h3>", unsafe_allow_html=True)
+    # st.markdown("<h3 style='text-align: right; color: gray;'>-- Kaushik Sirvole</h3>", unsafe_allow_html=True)
     with st.beta_expander("ABOUT", expanded=True):
         # st.subheader('ABOUT')
         st.write('USCIS Case Status Tracker app is built to help, people who have a pending '
