@@ -154,7 +154,7 @@ def app():
         # ------------------ Windowed Bucket Analysis Plots----------------------------#
         ##########################################################################
         status_list = ['Approved', 'Rejected', 'RFE', 'Received', 'FingerPrints Completed', 'Transferred']
-        color_list = ['green', 'red', 'yellow', 'blue', 'orange', 'aqua']
+        color_list = ['green', 'red', 'yellow', 'aqua', 'orange', 'blue']
 
         st.header(f'I-{st_formno} Status by the buckets')
         st.subheader(f'I-{st_formno} Status Ratios')
