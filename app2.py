@@ -158,7 +158,7 @@ def app():
         st.subheader(f'I-{st_formno} Status Ratios')
         alt_chart2 = alt.Chart(df6).mark_area(opacity=0.3).encode(
             x=alt.X("caseno:O", title='Case Numbers'),
-            y=alt.Y("ratio:Q", stack=None),
+            y=alt.Y("ratio:Q", stack='normalize'),
             color="status:N",
             tooltip=[alt.Tooltip('ratio:N'), alt.Tooltip('status:N')]
         ).properties(
@@ -167,7 +167,7 @@ def app():
         st.write(alt_chart2)
 
         st.subheader(f'I-{st_formno} Status Counts')
-        al2 = alt.Chart(df5).mark_bar(opacity=0.7).encode(
+        al2 = alt.Chart(df5).mark_bar(opacity=1).encode(
             x=alt.X("cuts:O", title='Case Number Buckets'),
             y=alt.Y('count:Q', stack=None),
             color="status",
