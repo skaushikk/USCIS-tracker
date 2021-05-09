@@ -129,27 +129,28 @@ def app():
 
         cuts = pd.cut(df_window['serial'], bins=st_bin_no).to_list()
         df_window['cuts'] = cuts
-        df_f = df_window.loc[df_window['FormNo'] == st_formno].reset_index(drop=True)
+        df_window = df_window.loc[df_window['FormNo'] == st_formno].reset_index(drop=True)
 
-        df_f = df_f.astype({'cuts': 'str'})
-        df_f['cuts'] = df_f.apply(
+        df_window = df_window.astype({'cuts': 'str'})
+        df_window['cuts'] = df_window.apply(
             lambda row: f"({str(row.cuts.split(',')[0][1:11])} - {str(row.cuts.split(',')[1][:11])})",
             axis=1)
 
-        df_f['cstatus'] = df_f['Status'].apply(user_funcs.rename_status)
+        df_window['cstatus'] = df_window['Status'].apply(user_funcs.rename_status)
 
-        df4 = df_f.groupby('cuts').count()['ReceiptNo'].reset_index()
+        df4 = df_window.groupby('cuts').count()['ReceiptNo'].reset_index()
         df4.columns = ['cuts', 'TotalCount']
 
-        df5 = df_f.groupby(['cuts', 'cstatus']).count()['serial'].groupby('cuts', group_keys=False).nlargest(
+        df5 = df_window.groupby(['cuts', 'cstatus']).count()['serial'].groupby('cuts', group_keys=False).nlargest(
             4).reset_index()
         df5.columns = ['cuts', 'status', 'count']
 
-        df5 = pd.merge(df5, df4, on='cuts')
-        df5['ratio'] = df5['count'] / df5['TotalCount']
-        df6 = df5.reset_index().sort_values(['status', 'index'])
-        df6['caseno'] = df6['cuts'].apply(lambda x: int(x[1:12]))
-
+        df_window = pd.merge(df5, df4, on='cuts')
+        df_window['ratio'] = df_window['count'] / df_window['TotalCount']
+        df_window = df_window.reset_index().sort_values(['status', 'index'])
+        df_window['caseno'] = df_window['cuts'].apply(lambda x: int(x[1:12]))
+        # st.dataframe(df_window)
+        # st.dataframe(df6)
         ##########################################################################
         # ------------------ Windowed Bucket Analysis Plots----------------------------#
         ##########################################################################
@@ -158,7 +159,7 @@ def app():
 
         st.header(f'I-{st_formno} Status by the buckets')
         st.subheader(f'I-{st_formno} Status Ratios')
-        alt_chart2 = alt.Chart(df6).mark_area(opacity=0.6).encode(
+        alt_chart2 = alt.Chart(df_window).mark_area(opacity=0.6).encode(
             x=alt.X("caseno:O", title='Case Numbers'),
             y=alt.Y("ratio:Q", stack='normalize'),
             color=alt.Color("status:N", scale=alt.Scale(domain=status_list, range=color_list)),
@@ -173,7 +174,7 @@ def app():
         st.write(alt_chart2)
 
         st.subheader(f'I-{st_formno} Status Counts')
-        al2 = alt.Chart(df5).mark_bar(opacity=0.6).encode(
+        al2 = alt.Chart(df_window).mark_bar(opacity=0.6).encode(
             x=alt.X("cuts:O", title='Case Number Buckets'),
             y=alt.Y('count:Q', stack='zero'),
             color=alt.Color("status", scale=alt.Scale(domain=status_list, range=color_list)),

@@ -45,19 +45,18 @@ def app():
             td += 1
             pass
 
-
-###########################
-        # st.header('Number of cases by the Form # (Application type)')
-        # col1, col2 = st.beta_columns((2, 1))
-        # with col1:
-        #     fig, ax1 = plt.subplots()
-        #     df_window_counts = df_window.FormNo.value_counts().to_frame().reset_index()
-        #     df_window_counts.columns = ['FormNo', 'Count']
-        #     sns.barplot(data=df_window_counts, x='FormNo', y='Count')
-        #     st.pyplot(fig)
-        # with col2:
-        #     st.dataframe(df_window_counts, width=1024)
-#############################
+    ###########################
+    # st.header('Number of cases by the Form # (Application type)')
+    # col1, col2 = st.beta_columns((2, 1))
+    # with col1:
+    #     fig, ax1 = plt.subplots()
+    #     df_window_counts = df_window.FormNo.value_counts().to_frame().reset_index()
+    #     df_window_counts.columns = ['FormNo', 'Count']
+    #     sns.barplot(data=df_window_counts, x='FormNo', y='Count')
+    #     st.pyplot(fig)
+    # with col2:
+    #     st.dataframe(df_window_counts, width=1024)
+    #############################
     with st.beta_expander('Similar Applications', expanded=False):
         if er:
             st.write('---------------   INPUT VALID RECEIPT NUMBER   ------------------- ')
@@ -66,19 +65,19 @@ def app():
         # rnge = st.number_input('Input Number of Cases to Analyze', value=10000)
 
         rnge = st.slider('Pick the number of applications around your case to analyze', min_value=100, max_value=10000,
-                     value=5000, step=50)
+                         value=5000, step=50)
         rng_start, rng_end = serial - 3 * rnge // 4, serial + rnge // 4
-        df_window = user_funcs.variable_window(_df, rng_start, rng_end).reset_index()
-        df_window = df_window[['ReceiptNo', 'FormNo', 'Status', 'serial']].rename(columns={'serial': 'Serial'})
+        df = user_funcs.variable_window(_df, rng_start, rng_end).reset_index()
+        df = df[['ReceiptNo', 'FormNo', 'Status', 'serial']].rename(columns={'serial': 'Serial'})
 
-        df_window_series = df_window[df_window['FormNo'] == formno]
-        series_total = df_window_series.shape[0]
-        df_window_series['Status'] = df_window_series['Status'].apply(user_funcs.rename_status)
-        df_window_series_group = df_window_series.groupby('Status').count()['Serial'].reset_index().rename(
+        df = df[df['FormNo'] == formno]
+        series_total = df.shape[0]
+        df['Status'] = df['Status'].apply(user_funcs.rename_status)
+        df = df.groupby('Status').count()['Serial'].reset_index().rename(
             columns={'Serial': 'Count'})
 
-        df_window_series_group['Ratio'] = df_window_series_group.Count / series_total
-        df_window_series_group['Percent'] = df_window_series_group['Ratio'].apply(lambda x: "{:.0%}".format(x))
+        df['Ratio'] = df.Count / series_total
+        df['Percent'] = df['Ratio'].apply(lambda x: "{:.0%}".format(x))
         # st.dataframe(df_window_series_group)
 
         st.header('Status distribution of similar applications')
@@ -92,20 +91,19 @@ def app():
         # with col4:
         #     st.dataframe(df_window_series_group[['Status', 'Percent']], width=1024, height=2025)
 
-        al1 = alt.Chart(df_window_series_group).mark_bar().encode(
+        al1 = alt.Chart(df).mark_bar().encode(
             x='Status',
             y='Ratio',
             color='Status',
-            tooltip = alt.Tooltip(['Ratio:Q'])
+            tooltip=alt.Tooltip(['Ratio:Q'])
         ).properties(
             width=700,
             height=400).interactive()
         st.write(al1)
 
-
-        approved = df_window_series_group.loc[df_window_series_group.Status == 'Approved', 'Percent']
-        pending = df_window_series_group.loc[df_window_series_group.Status.str.contains('Pending|Transferred|Received'), 'Ratio']
-        rejected = df_window_series_group.loc[df_window_series_group.Status == 'Rejected', 'Percent']
+        approved = df.loc[df.Status == 'Approved', 'Percent']
+        pending = df.loc[df.Status.str.contains('Pending|Transferred|Received'), 'Ratio']
+        rejected = df.loc[df.Status == 'Rejected', 'Percent']
 
         st.header('Approval Ratio')
         summary1 = f"{approved.values[0]} of the similar cases are APPROVED."
